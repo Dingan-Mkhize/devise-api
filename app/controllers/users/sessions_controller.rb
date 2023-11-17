@@ -3,13 +3,20 @@
 class Users::SessionsController < Devise::SessionsController
   respond_to :json
 
-  private
+    before_action :authenticate_user!, only: :destroy
 
-  def respond_with(resource, options={})
+
+  def create
+    self.resource = warden.authenticate!(auth_options)
+    sign_in(resource_name, resource)
+    yield resource if block_given?
+
     render json: {
       status: { code: 200, message: "User signed in successfully", data: current_user }
     }, status: :ok
   end
+
+  private
 
   def respond_to_on_destroy
     jwt_payload = JWT.decode(request.headers['Authorization'].split(' ')[1], Rails.application.credentials.fetch(:secret_key_base)).first
@@ -27,3 +34,4 @@ class Users::SessionsController < Devise::SessionsController
     end
   end
 end
+

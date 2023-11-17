@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 class Users::RegistrationsController < Devise::RegistrationsController
+  before_action :sign_up_params
   respond_to :json
 
   private
@@ -15,5 +16,8 @@ class Users::RegistrationsController < Devise::RegistrationsController
         status: { message: 'User could not be created successfull', errors: resource.errors.full_messages }, status: :unprocessable_entity
       }
     end
+  end
+  def sign_up_params
+    params.require(:user).permit(:email, :password, :password_confirmation, :username)
   end
 end
